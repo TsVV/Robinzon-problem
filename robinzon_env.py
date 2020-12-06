@@ -13,7 +13,10 @@ class RobinzonEnv(gym.Env):
 
     def __init__(self):
         self.boat = 100
-        self.status = True
+        self.res_water = 0
+        self.res_food = 1
+
+        self.alive = True
 
         self.viewer = None
 
@@ -23,19 +26,43 @@ class RobinzonEnv(gym.Env):
         self.seed()
         self.reset()
 
+    def check_for_alive(self):
+        self.alive = (self.res_water >= 0) #and (self.res_food >= 0)
+
+    def day_passed(self):
+        self.res_water -= 1
+        self.res_food -= 1
+        # still alive?
+        self.check_for_alive()
+
+    def do_day_task(self, action):
+        # Built a boat
+        if action == 0:
+            self.boat -= 1
+        # Stocked up with water from the stream
+        if action == 1:
+            self.res_water += 5
+        # Collected fruit
+        if action == 4:
+            self.res_food += 3
 
     def step(self, action):
         # lassert self.action_space.contains(action), f'{action} ({type(action)}) invalid'
-        # make a boat
-        if action == 0:
-            self.boat -= 1
+        # do day task
+        self.do_day_task(action)
+        # day passed
+        self.day_passed()
+        # reward
         reward = self._get_reward()
-        ob = [self.boat]
-        done = self.boat == 0
+        ob = [self.boat, self.alive, self.res_water, self.res_food]
+        # Win or Lose
+        done = (self.boat == 0) and (self.alive)
         return ob, reward, done, {}
 
     def reset(self):
         self.boat = 100
+        self.res_water = 0
+        self.res_food = 1
         return self.boat
 
     def render(self, mode='human'):
@@ -46,10 +73,15 @@ class RobinzonEnv(gym.Env):
 
     def _get_reward(self):
         """ Reward is given for scoring a goal. """
-        if (self.boat == 0):
-            return 100
+        if self.alive:
+            if (self.boat == 0):
+                return 100
+            elif (self.res_water >= 0): #and (self.res_food >= 0):
+                return 1
+            else:
+                return -1
         else:
-            return -1
+            return -1000
 
 ACTION_MEANING = {
     0 : 'Built a boat',

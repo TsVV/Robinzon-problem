@@ -34,19 +34,25 @@ class RobinzonProblem:
 
         actionCounter = 0
 
+        rewards = []
+
         # feed the actions to the environment:
         for action in actions:
             actionCounter += 1
 
             # provide an action and get feedback:
             observation, reward, done, info = self.env.step(action)
+            rewards.append(reward)
+
+            if not observation[1]: # Robinzon is dead
+                break
 
             # episode over - either the car hit the flag, or 200 actions processed:
             if done:
                 break
 
         # evaluate the results to produce the score:
-        if actionCounter < MAX_STEPS:
+        if done and (actionCounter < MAX_STEPS):
             # the car hit the flag:
             # start from a score of 0
             # reward further for a smaller amount of steps
@@ -55,6 +61,7 @@ class RobinzonProblem:
             # the car did not hit the flag:
             # reward according to distance from flag
             score = abs(observation[0])  # we want to minimize that
+            #score = -sum(rewards)
 
         return score
 
@@ -88,17 +95,19 @@ class RobinzonProblem:
         self.env.render()
 
         actionCounter = 0
+        rewards = 0
 
         # replay the given actions by feeding them into the environment:
         for action in actions:
-
             actionCounter += 1
             self.env.render()
             observation, reward, done, info = self.env.step(action)
+            rewards += reward
             print(actionCounter, ": --------------------------")
             print("action = ", action)
             print("observation = ", observation)
             print("distance from flag = ", abs(observation[0]))
+            print(f'Reward = {rewards}')
             print()
 
             if done:
