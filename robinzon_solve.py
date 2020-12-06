@@ -6,13 +6,13 @@ from deap import creator
 from deap import tools
 
 import random
-import numpy
+import numpy as np
 
 import robinzon_problem
 import elitism
 
 # Genetic Algorithm constants:
-POPULATION_SIZE = 1000 #100
+POPULATION_SIZE = 500 #100
 P_CROSSOVER = 0.9  # probability for crossover
 P_MUTATION = 0.5   # probability for mutating an individual
 MAX_GENERATIONS = 200 #80
@@ -67,8 +67,8 @@ def main():
 
     # prepare the statistics object:
     stats = tools.Statistics(lambda ind: ind.fitness.values)
-    stats.register("min", numpy.min)
-    stats.register("avg", numpy.mean)
+    stats.register("min", np.min)
+    stats.register("avg", np.mean)
 
     # define the hall-of-fame object:
     hof = tools.HallOfFame(HALL_OF_FAME_SIZE)
