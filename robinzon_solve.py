@@ -33,8 +33,10 @@ creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 # create the Individual class based on list:
 creator.create("Individual", list, fitness=creator.FitnessMin)
 
+NUM_ACTIONS = car.env.action_space.n  # actions are 0..17
+
 # create an operator that randomly returns 0..17:
-toolbox.register("zeroOneOrTwo", random.randint, 0, 17)
+toolbox.register("zeroOneOrTwo", random.randint, 0, NUM_ACTIONS - 1)
 
 # create an operator that generates a list of individuals:
 toolbox.register("individualCreator",
@@ -56,7 +58,8 @@ toolbox.register("evaluate", getCarScore)
 # genetic operators for binary list:
 toolbox.register("select", tools.selTournament, tournsize=2)
 toolbox.register("mate", tools.cxTwoPoint)
-toolbox.register("mutate", tools.mutUniformInt, low=0, up=2, indpb=1.0/len(car))
+# mutate about 3 genes per individual; 1 gene is too slow to escape the early-death plans
+toolbox.register("mutate", tools.mutUniformInt, low=0, up=NUM_ACTIONS - 1, indpb=3.0/len(car))
 
 
 # Genetic Algorithm flow:

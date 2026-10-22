@@ -26,8 +26,13 @@ class RobinzonEnv(gym.Env):
         self.seed()
         self.reset()
 
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return [seed]
+
     def check_for_alive(self):
-        self.alive = (self.res_water >= 0) #and (self.res_food >= 0)
+        # once Robinzon is dead he stays dead
+        self.alive = self.alive and (self.res_water >= 0) and (self.res_food >= 0)
 
     def day_passed(self):
         self.res_water -= 1
@@ -63,7 +68,8 @@ class RobinzonEnv(gym.Env):
         self.boat = 100
         self.res_water = 0
         self.res_food = 1
-        return self.boat
+        self.alive = True
+        return [self.boat, self.alive, self.res_water, self.res_food]
 
     def render(self, mode='human'):
         pass
@@ -76,7 +82,7 @@ class RobinzonEnv(gym.Env):
         if self.alive:
             if (self.boat == 0):
                 return 100
-            elif (self.res_water >= 0): #and (self.res_food >= 0):
+            elif (self.res_water >= 0) and (self.res_food >= 0):
                 return 1
             else:
                 return -1

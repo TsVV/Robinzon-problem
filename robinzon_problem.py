@@ -30,7 +30,8 @@ class RobinzonProblem:
         """
 
         # start a new episode:
-        self.env.reset()
+        observation = self.env.reset()
+        done = False
 
         actionCounter = 0
 
@@ -53,15 +54,18 @@ class RobinzonProblem:
 
         # evaluate the results to produce the score:
         if done and (actionCounter < MAX_STEPS):
-            # the car hit the flag:
+            # the boat is finished:
             # start from a score of 0
             # reward further for a smaller amount of steps
             score = 0 - (MAX_STEPS - actionCounter)/MAX_STEPS
         else:
-            # the car did not hit the flag:
-            # reward according to distance from flag
-            score = abs(observation[0])  # we want to minimize that
-            #score = -sum(rewards)
+            # the boat is not finished (Robinzon died or ran out of days):
+            # score by the amount of boat work still left plus the days Robinzon
+            # did not survive, we want to minimize both. Rewarding survival
+            # gives the GA a gradient out of the "dies in the first days" trap.
+            boatLeft = abs(observation[0])
+            daysNotSurvived = MAX_STEPS - actionCounter
+            score = boatLeft + daysNotSurvived
 
         return score
 
