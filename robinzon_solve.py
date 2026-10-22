@@ -15,7 +15,7 @@ import elitism
 POPULATION_SIZE = 500 #100
 P_CROSSOVER = 0.9  # probability for crossover
 P_MUTATION = 0.5   # probability for mutating an individual
-MAX_GENERATIONS = 200 #80
+MAX_GENERATIONS = 1000 #80
 HALL_OF_FAME_SIZE = 20
 
 # set the random seed:
